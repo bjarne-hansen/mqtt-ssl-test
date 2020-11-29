@@ -66,7 +66,7 @@ def on_message(client, userdata, message):
 # This program connect securely to a MQTT server and subscribes to a topic.
 #
 if __name__ == '__main__':
-    print('MQTT SSL Connection Test, v1.0')
+    print('MQTT TLS Subscriber Test, v1.0')
 
     # Create MQTT client with client identification.
     client = mqtt.Client(client_id="havreholm-subscriber")
