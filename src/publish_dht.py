@@ -101,8 +101,14 @@ if __name__ == '__main__':
     
     try:
         while True:
+
             # Read DHT22 sensor.
-            result = sensor.read()
+            try:
+                result = sensor.read()
+            except:
+                print('Error while reading sensor.')
+                result = None
+
             if result:
                 # Print the result on the console.
                 print(result)
