@@ -20,8 +20,7 @@ Python scripts:
 * `src/publish.py` - publish static message to topic iot/device/havreholm-indoor/data
 * `src/subscribe.py` - subscribes to messages on topic iot/device/havreholm-indoor/#
 * `src/read_dht.py` - simple test to read DHT22 sensor.
-* `src/publish_dht.py` - publish sensor readings to iot/device/laskedalen-office/data
-* `src/subscribe_dht.py` - subscripbe to sensor readings on iot/device/laskedalen-office/data
+* `src/publish_dht.py` - publish sensor readings to iot/device/havreholm-indoor/data
 
 You may want to change the topics for your own purpose.
 

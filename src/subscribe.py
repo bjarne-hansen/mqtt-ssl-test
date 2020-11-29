@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
     # Subscribe to any data sent to the topic iot/device/havreholm-indoor/data (this is where temperature and humidity readings go).
     print('Subscribe to iot/device/havreholm-indoor/data')
-    client.subscribe('iot/device/havreholm-indoor/#')
+    client.subscribe('iot/device/havreholm-indoor/data')
 
     try:
         client.loop_forever()
