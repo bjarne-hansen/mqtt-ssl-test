@@ -66,7 +66,7 @@ if __name__ == '__main__':
     print('MQTT TLS Publisher Test, v1.0')
 
     # Create MQTT client with client identification.
-    client = mqtt.Client("ld57-publisher")
+    client = mqtt.Client("havreholm-publisher")
 
     # Define callback function for connect, disconnect, and log events from MQTT client.
     client.on_connect = on_connect
@@ -127,8 +127,8 @@ if __name__ == '__main__':
                     json_payload = json.dumps(payload)
 
                     # Publish, i.e. send data to server on address iot/device/havreholm-indoor/data
-                    print('Publish data to iot/device/laskedalen-office/data ...')
-                    client.publish('iot/device/laskedalen-office/data', json_payload)
+                    print('Publish data to iot/device/havreholm-indoor/data ...')
+                    client.publish('iot/device/havreholm-indoor/data', json_payload)
                     client.loop()
                 else:
                     print('Invalid values read from sensor.')
@@ -143,8 +143,4 @@ if __name__ == '__main__':
         client.disconnect()
         client.loop()
         print('Done.')
-
-       
-    # Simulate creating a payload with a timestamp, temperature, and humidity reading from a DHT22 sensor.
- 
 
