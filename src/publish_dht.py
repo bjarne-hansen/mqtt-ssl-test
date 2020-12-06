@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
             # Read DHT22 sensor.
             try:
-                result = sensor.read()
+                result = sensor.read(retries=5)
             except:
                 print('Error while reading sensor.')
                 result = None
@@ -144,7 +144,7 @@ if __name__ == '__main__':
             else:
                 print('No value returned from sensor.')
 
-            time.sleep(5)
+            time.sleep(60)
 
 
     except KeyboardInterrupt:
