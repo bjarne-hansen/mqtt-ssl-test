@@ -17,10 +17,17 @@ Each Python scrip uses environment variables `MQTT_HOST`, `MQTT_PORT`, `MQTT_USE
 **PLEASE NOTE**: The scripts establish a TLS connection to the server and uses the `etc/trusted-ca.crt` certificate file.  The Base64 encoded certificate in that file **must** match the root certificate on the server you are accessing.  The one currently in the `etc/trusted-ca.crt` file is "DigiCert Global Root CA" which may or may not match what you need.  Make sure to replace it with the root certificate of your server.
 
 Python scripts:
-* `src/publish.py` - publish static message to topic iot/device/havreholm-indoor/data
-* `src/subscribe.py` - subscribes to messages on topic iot/device/havreholm-indoor/#
+* `src/publish.py <client id> <topic>` - connect with client id and public a static message to the topic specified.
+* `src/subscribe.py <client id> <topic> ` - connect with the client id and subscribe to messages on the topic specified.
 * `src/read_dht.py` - simple test to read DHT22 sensor.
-* `src/publish_dht.py` - publish sensor readings to iot/device/havreholm-indoor/data
+* `src/publish_dht.py <client id> <topic>` - connect with client id argument publish sensor readings to the topic specified every 5 seconds.
+
+Examples:
+```bash
+$ python src/publish.py test-publisher-1 iot/sensor/dht22
+$ python src/publish.py test-publisher-2 iot/sensor/dht22
+$ python src/subscribe.py test-subscriber-1 iot/sensor/dht22
+```
 
 You may want to change the topics for your own purpose.
 
