@@ -2,6 +2,7 @@
 import json
 import os
 import ssl
+import sys
 import time
 
 from datetime import datetime
@@ -62,9 +63,17 @@ def on_log(client, userdata, level, buf):
 #
 if __name__ == '__main__':
     print('MQTT TLS Publisher Test, v1.0')
+    
+    if len(sys.argv) == 3:
+        client_id = sys.argv[1]
+        topic = sys.argv[2]
+    else:
+        print(f'Usage: python publish.py [client_id] [topic]')
+        sys.exit(1)
 
     # Create MQTT client with client identification.
-    client = mqtt.Client("havreholm-publisher")
+    print(f'Create client {client_id} ...')
+    client = mqtt.Client(client_id)
 
     # Define callback function for connect, disconnect, and log events from MQTT client.
     client.on_connect = on_connect
@@ -76,16 +85,15 @@ if __name__ == '__main__':
 
     #
     # Set username and password from environment variables.
-    #   Windows:
-    #     set MQTT_USER=<username>
-    #     set MQTT_PWD=<password>
-    #    Mac/Linux:
-    #      export MQTT_USER=<username>
-    #      export MQTT_PWD=<password>
-    #    
+    #   MQTT_USER=<username>
+    #   MQTT_PWD=<password>
+    # 
     client.username_pw_set(os.environ.get('MQTT_USER'), os.environ.get('MQTT_PWD'))
 
-    # Connect to server.
+    # Connect to server using hostname and port from environment variables.
+    #   MQTT_HOST
+    #   MQTT_PORT
+    #
     client.connect(os.environ.get('MQTT_HOST'), int(os.environ.get('MQTT_PORT')))
     
     # Loop until we are connected ... (may loop forever).
@@ -104,8 +112,8 @@ if __name__ == '__main__':
     json_payload = json.dumps(payload)
 
     # Publish, i.e. send data to server on address iot/device/havreholm-indoor/data
-    print('Publish data to iot/device/havreholm-indoor/data ...')
-    client.publish('iot/device/havreholm-indoor/data', json_payload)
+    print(f'Publish {topic}: {json_payload}')
+    client.publish(topic, json_payload)
     client.loop()
 
     print('Disconnecting ...')

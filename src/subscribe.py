@@ -2,6 +2,7 @@
 import json
 import os
 import ssl
+import sys
 import time
 
 from datetime import datetime
@@ -68,8 +69,17 @@ def on_message(client, userdata, message):
 if __name__ == '__main__':
     print('MQTT TLS Subscriber Test, v1.0')
 
+    # Get topic to subscribe to.
+    if len(sys.argv) == 3:
+        client_id = sys.argv[1]
+        topic = sys.argv[2]
+    else:
+        print(f'Usage: python subscribe.py [client id] [topic]')
+        sys.exit(1)
+
     # Create MQTT client with client identification.
-    client = mqtt.Client(client_id="havreholm-subscriber")
+    print(f'Create client {client_id} ...')
+    client = mqtt.Client(client_id=client_id)
 
     # Define callback function for connect, disconnect, and log events from MQTT client.
     client.on_connect = on_connect
@@ -82,16 +92,15 @@ if __name__ == '__main__':
 
     #
     # Set username and password from environment variables.
-    #   Windows:
-    #     set MQTT_USER=<username>
-    #     set MQTT_PWD=<password>
-    #    Mac/Linux:
-    #      export MQTT_USER=<username>
-    #      export MQTT_PWD=<password>
-    #    
+    #   MQTT_USER
+    #   MQTT_PWD
+    # 
     client.username_pw_set(os.environ.get('MQTT_USER'), os.environ.get('MQTT_PWD'))
 
-    # Connect to server.
+    # Connect to server using hostname and port from environment variables.
+    #   MQTT_HOST
+    #   MQTT_PORT
+    # 
     client.connect(os.environ.get('MQTT_HOST'), int(os.environ.get('MQTT_PORT')))
     
     # Loop until we are connected ... (may loop forever).
@@ -100,9 +109,9 @@ if __name__ == '__main__':
         client.loop()
         time.sleep(1)
 
-    # Subscribe to any data sent to the topic iot/device/havreholm-indoor/data (this is where temperature and humidity readings go).
-    print('Subscribe to iot/device/havreholm-indoor/data')
-    client.subscribe('iot/device/havreholm-indoor/data')
+    # Subscribe to any data sent to the topic specified as parameter.
+    print(f'Subscribe to {topic}')
+    client.subscribe(topic)
 
     try:
         client.loop_forever()
