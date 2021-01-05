@@ -11,19 +11,24 @@ import paho.mqtt.client as mqtt
 
 from pigpio_dht import DHT22
 
-is_connected = False
+_mqtt_host = None
+_mqtt_port = None
+_mqtt_user = None
+_mqtt_pwd = None
+
+_is_connected = False
 
 #
 # on_connect()
 # Called by the MQTT client to report connection success/error.
 #
 def on_connect(client, userdata, flags, rc):
-    global is_connected
+    global _is_connected
 
-    is_connected = False
+    _is_connected = False
     if rc == 0:
         print(f'Connection successful. Userdata={userdata}, flags={flags}.')        
-        is_connected = True
+        _is_connected = True
     elif rc == 1:
         print(f'Connection refused. Bad protocol version.')
     elif rc == 2:
@@ -42,21 +47,20 @@ def on_connect(client, userdata, flags, rc):
 # Called by MQTT client to report disconnection from server.
 #
 def on_disconnect(client, userdata, rc):
-    global is_connected
+    global _is_connected
 
-    is_connected = False
+    _is_connected = False
     if rc == 0:
         print('Disconnected on client request.')
     else:
         print('Unexpected disconnect from server.')
-    
+         
 #
 # on_log()
 # Called by MQTT client to report status of the client.
 #
 def on_log(client, userdata, level, buf):
     print(f'log: {level} - {buf}')
-
 
 #
 # Main python routine.
@@ -101,7 +105,7 @@ if __name__ == '__main__':
 
     # Loop until we are connected ... (may loop forever).
     print('Connecting ...')
-    while not is_connected:
+    while not _is_connected:
         client.loop()
         time.sleep(1)
 
@@ -113,7 +117,7 @@ if __name__ == '__main__':
 
             # Read DHT22 sensor.
             try:
-                result = sensor.read()
+                result = sensor.read(retries=5)
             except:
                 print('Error while reading sensor.')
                 result = None
@@ -122,6 +126,8 @@ if __name__ == '__main__':
                 # Print the result on the console.
                 print(result)
                 if result.get('valid'):
+
+
                     # If result is valid, get temperature and humidity.
                     temperature = result.get('temp_c')
                     humidity = result.get('humidity')
@@ -135,16 +141,31 @@ if __name__ == '__main__':
                     # Convert payload to JSON.
                     json_payload = json.dumps(payload)
 
-                    # Publish, i.e. send data to server on address iot/device/havreholm-indoor/data
-                    print(f'Publish {topic}: {json_payload}  ...')
-                    client.publish(topic, json_payload)
-                    client.loop()
+                    # Publish, i.e. send data to server on the topic configured. 
+                    if not _is_connected:
+                        print(f'Reconnecting...')
+                        try:
+                            client.connect(os.environ.get('MQTT_HOST'), int(os.environ.get('MQTT_PORT')))
+                            count = 5 
+                            while not _is_connected and count > 0:
+                                client.loop()
+                                time.sleep(1)
+                                count -= 1
+                        except:
+                            print('Reconnection failed.')
+                    
+                    if _is_connected:
+                        print(f'Publish {topic}: {json_payload}  ...')
+                        client.publish(topic, json_payload, qos=1)
+                        client.loop()
+                    else:
+                        print('Not connected.')
                 else:
                     print('Invalid values read from sensor.')
             else:
                 print('No value returned from sensor.')
 
-            time.sleep(5)
+            time.sleep(10)
 
 
     except KeyboardInterrupt:
