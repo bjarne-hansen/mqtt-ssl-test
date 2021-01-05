@@ -1,4 +1,5 @@
 venv/
 .DS_Store
 .local
-log.txt
+.mqtt2db.conf
+
