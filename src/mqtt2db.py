@@ -24,7 +24,6 @@ def connect_database(pool_min, pool_max, database, user, password, host, port):
     global _pool    
     _pool = ThreadedConnectionPool(pool_min, pool_max, database=database, user=user, password=password, host=host, port=port)
 
-
 #
 # on_connect()
 # Called by the MQTT client to report connection success/error.
@@ -122,6 +121,7 @@ def create_mqtt_client(client_id):
 
     # Define TLS connection properties.
     client.tls_set(ca_certs='etc/trusted-ca.crt', tls_version=ssl.PROTOCOL_TLSv1_2)
+    return client
 
     
 #
@@ -151,22 +151,23 @@ if __name__ == '__main__':
     config = ConfigParser()
     config.read(config_files)
 
-    mqtt_client_id = config.get('mqtt', 'client_id')
-    mqtt_host = config.get('mqtt', 'host')
-    mqtt_port = config.getint('mqtt', 'port', 8883)
-    mqtt_user = config.get('mqtt', 'user')
+    mqtt_client_id = config.get('mqtt', 'client_id', fallback='mqtt2db')
+    mqtt_host = config.get('mqtt', 'host', fallback='localhost')
+    mqtt_port = config.getint('mqtt', 'port', fallback=8883)
+    mqtt_user = config.get('mqtt', 'user', fallback='iot')
     mqtt_password = config.get('mqtt', 'password')
-    mqtt_topic = config.get('mqtt', 'topic')
+    mqtt_topic = config.get('mqtt', 'topic', fallback='iot/+/+/data')
 
-    min_pool = config.getint('database', 'min_pool', 1)
-    max_pool = config.getint('database', 'max_pool', 5)
-    host = config.get('mqtt', 'host')
-    port = config.getint('mqtt', 'port', 5432)
-    database = config.get('database', 'database')
-    user = config.get('database', 'user')
+    min_pool = config.getint('database', 'min_pool', fallback=1)
+    max_pool = config.getint('database', 'max_pool', fallback=5)
+    host = config.get('database', 'host', fallback='localhost')
+    port = config.getint('database', 'port', fallback=5432)
+    database = config.get('database', 'database', fallback='iot')
+    user = config.get('database', 'user', fallback='iot')
     password = config.get('database', 'password')    
     
     # Connect to database.
+    print(f'{min_pool}, {max_pool}, {database}, {user}, {host}, {port}')
     connect_database(min_pool, max_pool, database, user, password, host, port)
 
     # Create MQTT client.

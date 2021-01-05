@@ -22,6 +22,11 @@ def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print(f'Connection successful. Userdata={userdata}, flags={flags}.')        
         is_connected = True
+
+        # Subscribe to any data sent to the topic specified as parameter.
+        print(f'Subscribe to {topic}')
+        client.subscribe(topic, qos=1)
+
     elif rc == 1:
         print(f'Connection refused. Bad protocol version.')
     elif rc == 2:
@@ -79,7 +84,7 @@ if __name__ == '__main__':
 
     # Create MQTT client with client identification.
     print(f'Create client {client_id} ...')
-    client = mqtt.Client(client_id=client_id)
+    client = mqtt.Client(client_id=client_id, clean_session=False, userdata="spunk")
 
     # Define callback function for connect, disconnect, and log events from MQTT client.
     client.on_connect = on_connect
@@ -109,9 +114,7 @@ if __name__ == '__main__':
         client.loop()
         time.sleep(1)
 
-    # Subscribe to any data sent to the topic specified as parameter.
-    print(f'Subscribe to {topic}')
-    client.subscribe(topic)
+    
 
     try:
         client.loop_forever()
