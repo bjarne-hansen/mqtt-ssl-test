@@ -66,6 +66,10 @@ def on_log(client, userdata, level, buf):
 #
 def on_message(client, userdata, message):
     print(f'Message received: topic={message.topic}, payload={message.payload}.')
+    payload = json.loads(message.payload)
+    userdata.write(json.dumps(payload))
+    userdata.write('\n')
+    userdata.flush()
 
 #
 # Main python routine.
@@ -74,17 +78,22 @@ def on_message(client, userdata, message):
 if __name__ == '__main__':
     print('MQTT TLS Subscriber Test, v1.0')
 
-    # Get topic to subscribe to.
-    if len(sys.argv) == 3:
+    # Parameters are client id, topic, file
+    if len(sys.argv) == 4:
         client_id = sys.argv[1]
         topic = sys.argv[2]
+        ofname = sys.argv[3]
     else:
-        print(f'Usage: python subscribe.py [client id] [topic]')
+        print(f'Usage: python subscribe.py [client id] [topic] [output]')
         sys.exit(1)
 
+    # Open the output file
+
+    out = open(ofname, 'a')
+    
     # Create MQTT client with client identification.
     print(f'Create client {client_id} ...')
-    client = mqtt.Client(client_id=client_id, clean_session=True, userdata="spunk")
+    client = mqtt.Client(client_id=client_id, clean_session=True, userdata=out)
 
     # Define callback function for connect, disconnect, and log events from MQTT client.
     client.on_connect = on_connect
@@ -114,12 +123,11 @@ if __name__ == '__main__':
         client.loop()
         time.sleep(1)
 
-    
-
     try:
         client.loop_forever()
     except KeyboardInterrupt:
         print('Disconnecting ...')
         client.disconnect()
         client.loop()
+        out.close()
         print('Done.')
