@@ -3,3 +3,4 @@ venv/
 .local
 .mqtt2db.conf
 
+var/
